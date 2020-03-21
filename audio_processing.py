@@ -26,8 +26,6 @@ from subprocess import check_call
 
 def build_argparser():
     parser = ArgumentParser()
-    parser.add_argument("-m", "--model", help="Path to the folder of a pre-trained model - The model needs to be able to execute within the required processing time (framesize/fs)", required=True, type=str)
-    parser.add_argument("-f", "--frontend", help="keras (for .h5, .json files) or tensorflow (for .pb files)", default='tensorflow', type=str)
     parser.add_argument("-n", "--framesize", help="Size of the input/output frames of the model", required=True, type=int)
     parser.add_argument("-b", "--buffersize", help="Percentage of buffering in the input/output frames for reducing latency - can be 0, 0.5 or 0.75 (0, 1 or 3 buffers)", default=0, type=float)
     parser.add_argument("-o", "--overlap", help="Overlap percentage of the audio frames - can be 0 or 0.5", default=0, type=float)
@@ -71,19 +69,6 @@ def process(frames):
 
 args = build_argparser().parse_args() #parse arguments
 
-# Import necessary modules for the specified frontend
-frontend = args.frontend
-if frontend == 'tensorflow' or frontend == 'Tensorflow' or frontend == 'tf':
-    frontend = 'tensorflow'
-    from tensorflow import Session, GraphDef, gfile, import_graph_def
-elif frontend == 'keras' or frontend == 'Keras' or frontend == 'k':
-    from keras.models import model_from_json
-    from keras.optimizers import Adam
-else:
-    print('The frontend argument must be either "tensorflow" or "keras" - Tensorflow will be used')
-    frontend = 'tensorflow'
-    from tensorflow import Session, GraphDef, gfile, import_graph_def
-
 # Start jackd server
 overlap = args.overlap
 buffersize = args.buffersize
@@ -110,36 +95,6 @@ if buffersize != 0 or overlap != 0:
         cleanb=np.zeros((blocksize,),dtype='float32')
 noisy=np.zeros((1,model_blocksize,1),dtype=precision)
 data=np.zeros((blocksize,),dtype=precision)
-
-# Load DNN model
-precision = args.precision #not used at the moment
-modeldir = args.model
-print ("Loading model from " + modeldir + "/Gmodel")
-if frontend == 'tensorflow':
-    sess=Session()
-    graph_def = GraphDef()
-    with gfile.FastGFile(modeldir + '/Gmodel.pb', 'rb') as f:
-        graph_def.ParseFromString(f.read())
-        import_graph_def(graph_def, name='')
-    output_layer = 'g_output/Reshape:0'
-    for n in graph_def.node:
-        if n.op == 'Placeholder':
-            input_node = n.name + ':0'
-    prob_tensor = sess.graph.get_tensor_by_name(output_layer)
-    clean = sess.run(prob_tensor, {input_node: noisy })
-    del n, graph_def, output_layer
-else:
-    g_opt = Adam(lr=0.0002) # Define optimizers
-    json_file = open(modeldir + "/Gmodel.json", "r")
-    loaded_model_json = json_file.read()
-    json_file.close()
-    G_loaded = model_from_json(loaded_model_json)
-    G_loaded.compile(loss='mean_squared_error', optimizer=g_opt)
-    G_loaded.load_weights(modeldir + "/Gmodel.h5")
-    if args.summary:
-        G_loaded.summary()
-    clean = G_loaded.predict(noisy)
-    del loaded_model_json, json_file
 
 try:
     # Initialise jackd client
@@ -169,64 +124,13 @@ try:
         # Connect mono file to stereo output
         o.connect(playback[0])
         o.connect(playback[1])
-
-        # The processing algorithm is implemented here
-        if frontend == 'tensorflow':
-            if overlap == 0:
-                if buffersize == 0:
-                    while True:
-                        # the input frame is extracted from the queue and saved in the 3d array noisy
-                        noisy[0,:,0] = qin.get() #.astype(precision) 
-                        # the input frame is processed by the DNN model and saved in the 3d array clean
-                        clean = sess.run(prob_tensor, {input_node: noisy })
-                        # the output frame 'clean' is converted to 1d and added in the output queue
-                        qout.put(clean.ravel())
-                else:
-                    while True:
-                        data = qin.get() #.astype(precision)
-                        noisy[0,:-blocksize,0] = noisy[0,blocksize:,0] # move old data
-                        noisy[0,-blocksize:,0] = data # add new data
-                        clean = sess.run(prob_tensor, {input_node: noisy })
-                        data = clean[0,buffer_blocksize:,0]
-                        qout.put(data)
-            elif overlap == 0.5:
-                while True:
-                    data = qin.get() #.astype(precision)
-                    noisy[0,:-blocksize,0] = noisy[0,blocksize:,0]
-                    noisy[0,-blocksize:,0] = data
-                    clean = sess.run(prob_tensor, {input_node: noisy })
-                    # 50% overlap
-                    data = overlap*(cleanb+clean[0,buffer_blocksize-blocksize:buffer_blocksize,0])
-                    cleanb=clean[0,buffer_blocksize:,0]
-                    qout.put(data)
-            else:
-                raise RuntimeError('Overlap percentage must be 0 or 0.5')
-        else:
-            if overlap == 0:
-                if buffersize == 0:
-                    while True:
-                        noisy[0,:,0] = qin.get() #.astype(precision)
-                        clean = G_loaded.predict(noisy)
-                        qout.put(clean.ravel())
-                else:
-                    while True:
-                        data = qin.get() #.astype(precision)
-                        noisy[0,:-blocksize,0] = noisy[0,blocksize:,0]
-                        noisy[0,-blocksize:,0] = data
-                        clean = G_loaded.predict(noisy)
-                        data = clean[0,buffer_blocksize:,0]
-                        qout.put(data)
-            elif overlap == 0.5:
-                while True:
-                    data = qin.get() #.astype(precision)
-                    noisy[0,:-blocksize,0] = noisy[0,blocksize:,0]
-                    noisy[0,-blocksize:,0] = data
-                    clean = G_loaded.predict(noisy)
-                    data = overlap*(cleanb+clean[0,buffer_blocksize-blocksize:buffer_blocksize,0])
-                    cleanb=clean[0,buffer_blocksize:,0]
-                    qout.put(data)
-            else:
-                raise RuntimeError('Overlap percentage must be 0 or 0.5')
+        
+        datain=qin.get()
+        
+        dataout = datain*2
+        
+        qout.put(dataout)
+        
 except (queue.Full):
     raise RuntimeError('Queue full')
 except KeyboardInterrupt:
