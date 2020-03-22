@@ -74,7 +74,7 @@ overlap = args.overlap
 buffersize = args.buffersize
 fs = args.sampling_rate
 blocksize = int((1-overlap) * (1-buffersize) * args.framesize)
-command = './start_jackd.sh %d %d' % (blocksize,fs)
+command = 'sh start_jackd.sh %d %d' % (blocksize,fs)
 check_call(command.split()) # calls start_jackd script to start jackd server
 
 # Use queues to pass data to/from the audio backend
