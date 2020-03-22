@@ -88,7 +88,7 @@ qin = queue.Queue(maxsize=queuesize)
 event = Event()
 
 # Initialise variables
-precision = float32
+precision = 'float32'
 model_blocksize = args.framesize
 if buffersize != 0 or overlap != 0:
     buffer_blocksize = int(model_blocksize - blocksize)
