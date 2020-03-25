@@ -3,7 +3,7 @@
 #Jackd starting script
 
 # Jackd parameters - set your SOUNDDEVICE here!
-SOUNDDEVICE=0 #RPiCirrus #audioinjectorpi
+SOUNDDEVICE=1 #RPiCirrus #audioinjectorpi
 SOUNDSTREAM=0
 FRAGSIZE=$1
 SAMPLERATE=$2
