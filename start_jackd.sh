@@ -33,6 +33,8 @@ killall jackd -9 &> /dev/null
 
 echo $'\nstart jackd'
 #taskset -c 0
+echo $SOUNDDEVICE
+echo $SOUNSTREAM
 jackd --realtime -d alsa -d hw:$SOUNDDEVICE,$SOUNDSTREAM -p $FRAGSIZE -r $SAMPLERATE -n $NPERIODS -s 2>&1 | sed 's/^/[JACKD] /' &
 
 sleep 2
