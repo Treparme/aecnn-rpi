@@ -74,9 +74,9 @@ overlap = args.overlap
 buffersize = args.buffersize
 fs = args.sampling_rate
 blocksize = int((1-overlap) * (1-buffersize) * args.framesize)
-#command = 'sh start_jackd.sh %d %d' % (blocksize,fs)
+command = './start_jackd.sh %d %d' % (blocksize,fs)
 #command = 'sh start_jackd.sh 1024 16000'          
-command = 'aplay -l'
+#command = 'aplay -l'
 check_call(command.split()) # calls start_jackd script to start jackd server
 
 # Use queues to pass data to/from the audio backend
@@ -111,6 +111,7 @@ try:
     client.inports.register('in_{0}'.format(1))
     client.outports.register('out_{0}'.format(1))
     i=client.inports[0]
+    i=client.inports[1]
     capture = client.get_ports(is_physical=True, is_output=True)
     playback = client.get_ports(is_physical=True, is_input=True, is_audio=True)
     o=client.outports[0]
@@ -121,22 +122,24 @@ try:
     # Pre-fill queues
     #qin.put_nowait(data)
     qout.put_nowait(data) # the output queue needs to be pre-filled
-
+	
     with client:
         i.connect(capture[0])
+	i.connect(capture[1])
         # Connect mono file to stereo output
         o.connect(playback[0])
         o.connect(playback[1])
+        while(1):
+            datain=qin.get()
         
-        datain=qin.get()
+            dataout = datain*2
         
-        dataout = datain*2
-        
-        qout.put(dataout)
-        
+            qout.put(dataout)
+	        
 except (queue.Full):
     raise RuntimeError('Queue full')
 except KeyboardInterrupt:
     print('\nInterrupted by User')
 command = 'killall jackd'
 check_call(command.split())
+print("ended")
