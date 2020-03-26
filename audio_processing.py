@@ -74,7 +74,7 @@ overlap = args.overlap
 buffersize = args.buffersize
 fs = args.sampling_rate
 blocksize = int((1-overlap) * (1-buffersize) * args.framesize)
-command = 'sh start_jackd.sh %d %d' % (blocksize,fs)
+#command = 'sh start_jackd.sh %d %d' % (blocksize,fs)
 command = 'sh start_jackd.sh 1024 16000'                                   
 check_call(command.split()) # calls start_jackd script to start jackd server
 
