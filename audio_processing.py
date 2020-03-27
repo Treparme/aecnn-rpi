@@ -66,7 +66,10 @@ def process(frames):
         qin1.put(datain1)
         
         data = qout.get_nowait()
+        data1 = qout1.get_nowait()
         client.outports[0].get_array()[:] = data
+        client.outports[1].get_array()[:] = data1
+        
     except queue.Empty:
         stop_callback('Buffer is empty: increase queuesize?')
 
