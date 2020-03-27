@@ -89,8 +89,10 @@ if args.queuesize < 1:
     queuesize = 1
 else:
     queuesize = args.queuesize
+    
 qout = queue.Queue(maxsize=queuesize)
-#qout1 = queue.Queue(maxsize=queuesize)
+qout1 = queue.Queue(maxsize=queuesize)
+
 qin = queue.Queue(maxsize=queuesize)
 qin1 =queue.Queue(maxsize=queuesize)
 event = Event()
@@ -117,17 +119,19 @@ try:
     client.inports.register('in_{0}'.format(1))
     client.inports.register('inp_{0}'.format(1))
     client.outports.register('out_{0}'.format(1))
+    client.outports.register('out1_{0}'.format(1))
     
     #print(client.get_ports())
     #print(client.inports)
     
-    i=client.inports[0]
+    i1=client.inports[0]
+    i2=client.inports[1]
     
-    #j=client.inports[1]
     capture = client.get_ports(is_physical=True, is_output=True)
     playback = client.get_ports(is_physical=True, is_input=True, is_audio=True)
 
-    o=client.outports[0]
+    o1=client.outports[0]
+    o2=client.outports[1]
 
     timeout = blocksize / samplerate
     print("Processing input in %d ms frames" % (int(round(1000 * timeout))))
@@ -135,14 +139,13 @@ try:
     # Pre-fill queues
     #qin.put_nowait(data)
     qout.put_nowait(data) # the output queue needs to be pre-fille
-
+    qout1.put_nowait(data) # the output queue needs to be pre-fille
     with client:
-        i.connect(capture[0])
-        i.connect(capture[1])
+        i1.connect(capture[0])
+        i2.connect(capture[1])
 
-        # Connect steroe file to stereo output
-        o.connect(playback[0])
-        o.connect(playback[1])
+        o1.connect(playback[0])
+        o2.connect(playback[1])
 
         while(1):
             datain=qin.get()
@@ -151,8 +154,8 @@ try:
             dataout = datain/2
             dataout1 = datain1/4
 
-            qout.put(dataout+dataout1)
-            #qout1.put(dataout1)
+            qout.put(dataout)
+            qout1.put(dataout1)
 
 except (queue.Full):
     raise RuntimeError('Queue full')
