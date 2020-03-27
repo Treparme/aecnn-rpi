@@ -113,10 +113,11 @@ try:
     client.set_process_callback(process)
 
     client.inports.register('in_{0}'.format(1))
+    client.inports.register('in_{1}'.format(1))
     client.outports.register('out_{0}'.format(1))
     print(client.get_ports())
     i=client.inports[0]
-
+    j=client.inports[1]
     capture = client.get_ports(is_physical=True, is_output=True)
     playback = client.get_ports(is_physical=True, is_input=True, is_audio=True)
 
@@ -131,7 +132,7 @@ try:
 
     with client:
         i.connect(capture[0])
-        #i.connect(capture[1])
+        j.connect(capture[1])
 
         # Connect steroe file to stereo output
         o.connect(playback[0])
