@@ -60,9 +60,9 @@ def process(frames):
         stop_callback('blocksize must not be changed, I quit!')
     try:
         datain=client.inports[0].get_array()
-       # datain1=client.inports[1].get_array()
+        datain1=client.inports[1].get_array()
         qin.put(datain)
-        #qin1.put(datain)
+        qin1.put(datain)
         data = qout.get_nowait()
         client.outports[0].get_array()[:] = data
     except queue.Empty:
@@ -90,7 +90,7 @@ else:
 qout = queue.Queue(maxsize=queuesize)
 #qout1 = queue.Queue(maxsize=queuesize)
 qin = queue.Queue(maxsize=queuesize)
-#qin1 =queue.Queue(maxsize=queuesize)
+qin1 =queue.Queue(maxsize=queuesize)
 event = Event()
 
 # Initialise variables
