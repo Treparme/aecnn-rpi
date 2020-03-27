@@ -72,6 +72,9 @@ def process(frames):
         
     except queue.Empty:
         stop_callback('Buffer is empty: increase queuesize?')
+        
+def maak_antinoise(input, feedback):
+    return 2*input + 2*feedback #dummy resultaat
 
 
 args = build_argparser().parse_args() #parse arguments
@@ -154,7 +157,7 @@ try:
             datain=qin.get()
             datain1=qin1.get()
 
-            dataout = datain*(-1)
+            dataout = maak_antinoise(datain, datain1)
             dataout1 = datain1*(-1)
 
             qout.put(dataout)
