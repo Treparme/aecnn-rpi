@@ -62,7 +62,7 @@ def process(frames):
         datain=client.inports[0].get_array()
        # datain1=client.inports[1].get_array()
         qin.put(datain)
-        qin1.put(datain)
+        #qin1.put(datain)
         data = qout.get_nowait()
         client.outports[0].get_array()[:] = data
     except queue.Empty:
@@ -88,9 +88,9 @@ if args.queuesize < 1:
 else:
     queuesize = args.queuesize
 qout = queue.Queue(maxsize=queuesize)
-qout1 = queue.Queue(maxsize=queuesize)
+#qout1 = queue.Queue(maxsize=queuesize)
 qin = queue.Queue(maxsize=queuesize)
-qin1 =queue.Queue(maxsize=queuesize)
+#qin1 =queue.Queue(maxsize=queuesize)
 event = Event()
 
 # Initialise variables
@@ -131,7 +131,7 @@ try:
 
     with client:
         i.connect(capture[0])
-        i.connect(capture[1])
+        #i.connect(capture[1])
 
         # Connect steroe file to stereo output
         o.connect(playback[0])
@@ -139,13 +139,13 @@ try:
 
         while(1):
             datain=qin.get()
-            datain1=qin1.get()
+            #datain1=qin1.get()
 
             dataout = datain*2
-            dataout1 = datain1*4
+            #dataout1 = datain1*4
 
             qout.put(dataout)
-            qout1.put(dataout1)
+            #qout1.put(dataout1)
 
 except (queue.Full):
     raise RuntimeError('Queue full')
