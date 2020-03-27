@@ -113,11 +113,11 @@ try:
     client.set_process_callback(process)
 
     client.inports.register('in_{0}'.format(1))
-    client.inports.register('in_{1}'.format(0))
+    #client.inports.register('in_{1}'.format(0))
     client.outports.register('out_{0}'.format(1))
     print(client.get_ports())
     i=client.inports[0]
-    j=client.inports[1]
+    #j=client.inports[1]
     capture = client.get_ports(is_physical=True, is_output=True)
     playback = client.get_ports(is_physical=True, is_input=True, is_audio=True)
 
