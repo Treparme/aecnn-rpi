@@ -63,7 +63,7 @@ def process(frames):
         datain1=client.inports[1].get_array()
         
         qin.put(datain)
-        #qin1.put(datain1)
+        qin1.put(datain1)
         
         data = qout.get_nowait()
         client.outports[0].get_array()[:] = data
@@ -146,7 +146,7 @@ try:
 
         while(1):
             datain=qin.get()
-            #datain1=qin1.get()
+            datain1=qin1.get()
 
             dataout = datain*2
             #dataout1 = datain1*4
