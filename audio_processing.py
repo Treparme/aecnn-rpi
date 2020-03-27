@@ -132,7 +132,7 @@ try:
 
     with client:
         i.connect(capture[0])
-        j.connect(capture[1])
+        i.connect(capture[1])
 
         # Connect steroe file to stereo output
         o.connect(playback[0])
