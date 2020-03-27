@@ -154,8 +154,8 @@ try:
             datain=qin.get()
             datain1=qin1.get()
 
-            dataout = datain/2
-            dataout1 = datain1/4
+            dataout = datain*(-1)
+            dataout1 = datain1*(-1)
 
             qout.put(dataout)
             qout1.put(dataout1)
