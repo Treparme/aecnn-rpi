@@ -148,10 +148,10 @@ try:
             datain=qin.get()
             datain1=qin1.get()
 
-            dataout = datain*2
-            #dataout1 = datain1*4
+            dataout = datain/2
+            dataout1 = datain1/4
 
-            qout.put(dataout)
+            qout.put(dataout+dataout1)
             #qout1.put(dataout1)
 
 except (queue.Full):
