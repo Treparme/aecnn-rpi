@@ -113,7 +113,7 @@ try:
     client.set_process_callback(process)
 
     client.inports.register('in_{0}'.format(1))
-    client.inports.register('in_{2}'.format(1))
+    client.inports.register('in_{0}'.format(1))
     client.outports.register('out_{0}'.format(1))
     print(client.get_ports())
     print(client.inports)
