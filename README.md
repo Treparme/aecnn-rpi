@@ -11,49 +11,20 @@ This work received funding from the European Research Council (ERC) under the Ho
 
 The Keras framework for the implementation of the AECNN models is adapted from [here](https://github.com/deepakbaby/se_relativisticgan). The necessary scripts can be found in the AECNN folder.
 
-## Preparation of data
-1. The [dataset](https://datashare.is.ed.ac.uk/handle/10283/1942) of Valentini et al. was used for the training and testing of the models. The `download_dataset.sh` script can be used to download the dataset (it requires [sox](http://sox.sourceforge.net/) to downsample the data to 16 kHz).
-    ```bash
-    ./download_dataset.sh
-    ```
+# start_jackd.sh
+Deze dient op de jack client klaar te zetten, zet parameters goed voor de audiokaart
 
-2. The data need to be segmented in the training and testing sets depending on the desired window size (the input/output size of the AECNN model). For this, the variable `opts ['window_size']` needs to be defined in the `prepare_data.py` script.
-    ```python
-    python prepare_data.py
-    ```
+# audio_processing.py
 
-## Training the model
-```python
-python run_aecnn.py
-```
-The `opts` variable needs to be edited to modify the architecture configurations of the AECNN model.
+run via: "python3 audio_processing.py -n 1024 (of grotere macht van 2)
 
-## Running the trained model in real-time
-1. To run the real-time framework, the jackclient-python module needs to be installed first. You can find the installations instructions on its github page: 
-https://github.com/spatialaudio/jackclient-python
+-n is windowsize
 
-2. After the installation of the jackclient, the trained model can be executed using the following command:
-    ```python
-    python audio_processing.py -m model_directory -n model_input_size -f keras
-    ```
-    The directory of the trained model needs to be defined with the `-m` argument as well as the input/output size of the model with the `-n` argument. Keras or Tensorflow can be used as the frontend (`-f`) and 0% or 50% overlap (`-o`) or frame buffering (`-b`) can be applied.
+de belangrijkste,
 
-    ----
+hebben 2 inputs, 2 outputs, deze werken via queues
 
-### Benchmarking a model
-A trained model can be benchmarked within the current framework in terms of execution time, in order to get the time constrains for different settings. A .wav file needs to be provided (`-i`) and the (parent) directory containing the model folder(s) needs to be defined (`-d`). This way, multiple models can be benchmarked with this script.
-```python
-python model_benchmark.py -i wav_file -d parent_directory -f keras -it 1
-```
+wanneer deze crasht (ergens foutloopt) en we herstarten kan het zijn dat de server/socket niet gevonden wordt, het best is dan nog eens opnieuw proberen te runnen
 
-### Converting a Keras model to protobuf format (.pb)
-A trained model can be converted to protobuf format for inference in Tensorflow:
-```python
-python tensorflow_converter.py -m model_directory
-```
-
-### Measure the complexity of a Keras model
-The number of parameters and floating-point operations of a trained model can be computed:
-```python
-python measure_complexity.py -m model_directory
-```
+lijnen 157-158 zijn het belangrijkste voor het algoritme tussen te plaatsen!!
+2 queues om input van te halen, 2 queues om output naar buiten mee te brengen
