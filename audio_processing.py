@@ -63,7 +63,7 @@ def process(frames):
         datain1=client.inports[1].get_array()
         
         qin.put(datain)
-        qin1.put(datain1)
+        #qin1.put(datain1)
         
         data = qout.get_nowait()
         client.outports[0].get_array()[:] = data
@@ -117,9 +117,12 @@ try:
     client.inports.register('in_{0}'.format(1))
     client.inports.register('inp_{0}'.format(1))
     client.outports.register('out_{0}'.format(1))
-    print(client.get_ports())
-    print(client.inports)
+    
+    #print(client.get_ports())
+    #print(client.inports)
+    
     i=client.inports[0]
+    
     #j=client.inports[1]
     capture = client.get_ports(is_physical=True, is_output=True)
     playback = client.get_ports(is_physical=True, is_input=True, is_audio=True)
