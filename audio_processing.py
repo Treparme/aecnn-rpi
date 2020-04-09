@@ -161,6 +161,8 @@ try:
     filter_ = np.zeros(windowsize)
     output = np.zeros(buffersize)
     
+    leeg = np.zeros(buffersize)
+    
     with client:
         i1.connect(capture[0])
         i2.connect(capture[1])
@@ -171,10 +173,15 @@ try:
         while(1):
             noise_input=qin.get()
             error_input=qin1.get()
+            
+            buffered_window[-buffersize: ] = noise_input
+            
            
+               
+            buffered_window[:-buffersize] = buffered_window[buffersize:]
 
-            qout.put(noise_input)
-            qout1.put(noise_input)
+            qout.put(output)
+            qout1.put(leeg)
 
 except (queue.Full):
     raise RuntimeError('Queue full')
