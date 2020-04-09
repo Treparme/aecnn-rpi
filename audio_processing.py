@@ -185,11 +185,8 @@ try:
                 
                 error = error_input[index]
                 
-                
-                window_delay_normed = window_delay /2
-                
-                
-                
+                window_delay_normed = window_delay
+               
                
             buffered_window[:-buffersize] = buffered_window[buffersize:]
 
