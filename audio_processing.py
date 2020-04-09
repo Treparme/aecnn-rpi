@@ -184,7 +184,7 @@ try:
                 window_delay_normed = window_delay / (np.dot(window_delay, window_delay) + epsilon)
                 filter_ += mu*error * window_delay_normed
                
-            buffered_window[:-buffersize] = buffered_window[buffer_size:]
+            buffered_window[:-buffersize] = buffered_window[buffersize:]
 
             qout.put(output)
             qout1.put(output)
