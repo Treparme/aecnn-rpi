@@ -159,8 +159,8 @@ try:
     windowsize = 2 * buffersize 
     
     buffered_window = np.zeros(delay + windowsize + buffersize)
-    #filter_ = np.zeros(windowsize)
-    filter_ = np.random.rand(windowsize) / 10
+    filter_ = np.zeros(windowsize)
+    #filter_ = np.random.rand(windowsize) / 10
     output = np.zeros(buffersize)
     
     leeg = np.zeros(buffersize)
