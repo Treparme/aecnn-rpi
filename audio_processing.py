@@ -186,6 +186,7 @@ try:
                 error = error_input[index]
                 
                 
+                window_delay_normed = window_delay / (np.dot(window_delay, window_delay) + epsilon)
                 
                 
                 
