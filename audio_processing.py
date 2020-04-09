@@ -183,6 +183,9 @@ try:
                 output[index] = -np.dot(window, filter_)
                 window_delay = buffered_window[index:windowsize + index]
                 
+                error = error_input[index]
+                
+                
                 
                 
                 
