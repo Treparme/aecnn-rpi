@@ -181,6 +181,8 @@ try:
                 window = buffered_window[delay+index: delay+windowsize + index]
                 
                 output[index] = -np.dot(window, filter_)
+                window_delay = buffered_window[index:windowsize + index]
+                
                 
                 
                 
