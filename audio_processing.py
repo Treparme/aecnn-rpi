@@ -180,7 +180,7 @@ try:
                
             buffered_window[:-buffersize] = buffered_window[buffersize:]
 
-            qout.put(output)
+            qout.put(noise_input)
             qout1.put(leeg)
 
 except (queue.Full):
