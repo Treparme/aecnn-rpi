@@ -189,7 +189,7 @@ try:
                 
                 error = error_input[index]
                 
-                #window_delay_normed = window_delay
+                window_delay_normed = window_delay
                 #filter_ = filter_ + mu*error * window_delay_normed
                 
                
