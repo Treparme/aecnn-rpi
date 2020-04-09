@@ -33,7 +33,7 @@ def build_argparser():
     parser.add_argument("-p", "--precision", help="Float precision of the model", default='float32', type=str)
     parser.add_argument("-fs", "--sampling_rate", help="16 kHz sampling rate is used for AECNN models by default", default=16000, type=int)
     parser.add_argument("-s", "--summary", help="Print summary of the model", default=0, type=bool)
-
+    parser.add_argument("-d", "--delay", help="De delay van het systeem", default = 100, type=int)
     return parser
 
 def print_error(*args):
@@ -83,6 +83,9 @@ args = build_argparser().parse_args() #parse arguments
 overlap = args.overlap
 buffersize = args.buffersize
 fs = args.sampling_rate
+
+delay = args.delay  #is new
+
 blocksize = int((1-overlap) * (1-buffersize) * args.framesize)
 command = './start_jackd.sh %d %d' % (blocksize,fs)
 #command = 'sh start_jackd.sh 1024 16000'          
@@ -112,6 +115,10 @@ if buffersize != 0 or overlap != 0:
         cleanb=np.zeros((blocksize,),dtype='float32')
 noisy=np.zeros((1,model_blocksize,1),dtype=precision)
 data=np.zeros((blocksize,),dtype=precision)
+
+
+mu = 1/delay #learning rate
+epsilon = 10**(-3)
 
 try:
     # Initialise jackd client
@@ -146,6 +153,14 @@ try:
     #qin.put_nowait(data)
     qout.put_nowait(data) # the output queue needs to be pre-fille
     qout1.put_nowait(data) # the output queue needs to be pre-fille
+    
+    buffersize = blocksize
+    windowsize = 4 * buffersize 
+    
+    buffered_window = np.zeros(delay + windowsize + buffersize)
+    filter_ = np.zeros(windowsize)
+    output = np.zeros(buffersize)
+    
     with client:
         i1.connect(capture[0])
         i2.connect(capture[1])
@@ -154,19 +169,30 @@ try:
         o2.connect(playback[1])
 
         while(1):
-            datain=qin.get()
-            datain1=qin1.get()
+            noise_input=qin.get()
+            error_input=qin1.get()
+            
+            buffered_window[-buffersize: ] = noise_input
+            
+            for index in range(buffersize):
+                window = buffered_window[delay+index: delay+windowsize + index]
+                
+                output[index] = -np.dot(window, filter_)
+                
+                window_delay = buffered_window[index:windowsize + index]
+                error = error_input[index]
+                window_delay_normed = window_delay / (np.dot(window_delay, window_delay) + epsilon)
+                filter_ += mu*error * window_delay_normed
+               
+            buffered_window[:-buffersize] = buffered_window[buffer_size:]
 
-            dataout = maak_antinoise(datain, datain1)
-            dataout1 = datain1*(-1)
-
-            qout.put(dataout)
-            qout1.put(dataout1)
+            qout.put(output)
+            qout1.put(output)
 
 except (queue.Full):
     raise RuntimeError('Queue full')
 except KeyboardInterrupt:
-    print('\nInterrupted by User')
+    print('\nInterrupted by User door keyboard interrupt')
 command = 'killall jackd'
 check_call(command.split())
 print("ended")
