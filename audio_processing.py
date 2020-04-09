@@ -17,6 +17,7 @@ import jack
 import sys
 import numpy as np
 from argparse import ArgumentParser
+
 from threading import Event
 try:
     import queue  # Python 3.x
@@ -158,7 +159,8 @@ try:
     windowsize = 2 * buffersize 
     
     buffered_window = np.zeros(delay + windowsize + buffersize)
-    filter_ = np.zeros(windowsize)
+    #filter_ = np.zeros(windowsize)
+    filter_ = np.random.rand(windowsize) / 10
     output = np.zeros(buffersize)
     
     leeg = np.zeros(buffersize)
@@ -171,11 +173,13 @@ try:
         o2.connect(playback[1])
 
         delay = 0
+        
         while(1):
             noise_input=qin1.get()
             error_input=qin.get()
             
             buffered_window[-buffersize: ] = noise_input
+            
             
             for index in range(buffersize):
                 window = buffered_window[delay+index: delay+windowsize + index]
@@ -185,8 +189,8 @@ try:
                 
                 error = error_input[index]
                 
-                window_delay_normed = window_delay
-                filter_ = filter_ + mu*error * window_delay_normed
+                #window_delay_normed = window_delay
+                #filter_ = filter_ + mu*error * window_delay_normed
                 
                
             buffered_window[:-buffersize] = buffered_window[buffersize:]
