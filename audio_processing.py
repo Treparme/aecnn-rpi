@@ -186,7 +186,7 @@ try:
                 error = error_input[index]
                 
                 
-                window_delay_normed = window_delay / 2048
+                window_delay_normed = window_delay /2
                 
                 
                 
