@@ -171,23 +171,10 @@ try:
         while(1):
             noise_input=qin.get()
             error_input=qin1.get()
-            
-            buffered_window[-buffersize: ] = noise_input
-            
-            for index in range(buffersize):
-                window = buffered_window[delay+index: delay+windowsize + index]
-                
-                output[index] = -np.dot(window, filter_)
-                
-                window_delay = buffered_window[index:windowsize + index]
-                error = error_input[index]
-                window_delay_normed = window_delay / (np.dot(window_delay, window_delay) + epsilon)
-                filter_ += mu*error * window_delay_normed
-               
-            buffered_window[:-buffersize] = buffered_window[buffersize:]
+           
 
-            qout.put(output)
-            qout1.put(output)
+            qout.put(noise_input)
+            qout1.put(noise_input)
 
 except (queue.Full):
     raise RuntimeError('Queue full')
