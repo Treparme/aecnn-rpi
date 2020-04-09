@@ -190,7 +190,7 @@ try:
                 error = error_input[index]
                 
                 #window_delay_normed = window_delay
-                filter_ +=  window_delay /64
+                filter_ +=  error*window
                 
                
             buffered_window[:-buffersize] = buffered_window[buffersize:]
