@@ -180,6 +180,10 @@ try:
             for index in range(buffersize):
                 window = buffered_window[delay+index: delay+windowsize + index]
                 
+                output[index] = -np.dot(window, filter_)
+                
+                
+                
                
             buffered_window[:-buffersize] = buffered_window[buffersize:]
 
