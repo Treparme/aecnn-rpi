@@ -180,8 +180,8 @@ try:
                
             buffered_window[:-buffersize] = buffered_window[buffersize:]
 
-            qout.put(leeg) #rechts
-            qout1.put(noise_input) #links
+            qout.put(noise_input) #links
+            qout1.put(leeg) #rechts
 
 except (queue.Full):
     raise RuntimeError('Queue full')
