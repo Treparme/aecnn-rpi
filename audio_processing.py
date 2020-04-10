@@ -191,8 +191,8 @@ try:
                     window_delay = buffered_window[index:windowsize + index]
 
                     error = error_input[index]
-
-                    window_delay_normed = window_delay
+                    norm = np.linalg.norm(window_delay)
+                    window_delay_normed = window_delay / (norm+epsilon)
                     filter_ +=  mu*error*window_delay_normed
                 
                
