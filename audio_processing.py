@@ -156,7 +156,7 @@ try:
     qout1.put_nowait(data) # the output queue needs to be pre-fille
     
     buffersize = blocksize
-    multiplicator = 4
+    multiplicator = 2
     windowsize = multiplicator * buffersize 
     
     buffered_window = np.zeros(delay + windowsize + buffersize)
@@ -173,7 +173,7 @@ try:
         o1.connect(playback[0])
         o2.connect(playback[1])
         
-        deler = multiplicator*2
+        deler = multiplicator*4
         while(1):
             noise_input=qin1.get()
             error_input=qin.get()
