@@ -14,12 +14,12 @@ class ANC():
         self.mu = 1/delay #learning rate
         self.buffer_size = self.blocksize
         self.multiplicator = 4
-        self.windowsize = self.multiplicator * self.buffersize
+        self.windowsize = self.multiplicator * self.buffer_size
 
         self.buffered_window = np.zeros(self.delay + self.windowsize + self.buffer_size)
         self.filter_ = np.zeros(self.windowsize)
         # self.filter_ = np.random.rand(windowsize) / 10
-        self.leeg = np.zeros(buffersize)
+        self.leeg = np.zeros(self.buffer_size)
 
 
     def start(self):
