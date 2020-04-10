@@ -40,21 +40,21 @@ class ANC():
 
         self.error = error
 
-        return calculate_antinoise_sample(np.arange(self.buffer_size)) # antinoise for each index
+        return self.calculate_antinoise_sample(np.arange(self.buffer_size)) # antinoise for each index
 
 
     def calculate_antinoise_sample(self, index):
-        window = buffered_window[self.delay + index: self.delay + self.windowsize + index]
+        window = self.buffered_window[self.delay + index: self.delay + self.windowsize + index]
         antinoise_sample = - np.dot(window, self.filter_)
         self.update_filter(index)
         return antinoise_sample
 
 
     def update_filter(self, index):
-        window_delay = buffered_window[index: self.windowsize + index]
+        window_delay = self.buffered_window[index: self.windowsize + index]
         window_delay_normed = window_delay / (np.dot(window_delay, window_delay) + self.epsilon)
         self.filter_ += mu * self.error[index] * window_delay_normed
 
         # explosion protection
         if np.sum(abs(filter_)) > self.windowsize / 100:
-            filter_ = np.zeros(self.windowsize)
+            self.filter_ = np.zeros(self.windowsize)
