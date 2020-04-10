@@ -13,6 +13,8 @@ class ANC():
         self.delay = delay
         self.blocksize = blocksize
 
+        self.counter = 0
+
         self.mu = 1/delay #learning rate
         self.buffer_size = self.blocksize
         self.multiplicator = 4
