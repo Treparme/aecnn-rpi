@@ -171,14 +171,13 @@ try:
 
         o1.connect(playback[0])
         o2.connect(playback[1])
-
         delay = 0
         
         while(1):
             noise_input=qin1.get()
             error_input=qin.get()
             counter = 0
-            
+           
             buffered_window[-buffersize: ] = noise_input
             
             
