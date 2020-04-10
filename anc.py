@@ -20,6 +20,7 @@ class ANC():
         self.filter_ = np.zeros(self.windowsize)
         # self.filter_ = np.random.rand(windowsize) / 10
         self.leeg = np.zeros(self.buffer_size)
+        print(self.delay, self.windowsize)
 
 
     def start(self):
