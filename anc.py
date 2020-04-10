@@ -42,7 +42,6 @@ class ANC():
         self.buffered_window[-self.buffer_size: ] = noise
 
         self.error = error
-        print("printing first value of error so you can see results visually", error[0])
 
         return np.array([self.calculate_antinoise_sample(index) for index in range(self.buffer_size)]) # antinoise for each index
 
