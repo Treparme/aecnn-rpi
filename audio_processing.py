@@ -157,7 +157,7 @@ try:
     
     buffersize = blocksize
     multiplicator = 2
-    windowsize = multiplicator * buffersize 
+    windowsize = 2 * buffersize 
     
     buffered_window = np.zeros(delay + windowsize + buffersize)
     filter_ = np.zeros(windowsize)
@@ -188,7 +188,7 @@ try:
                 
                 output[index] = -np.dot(window, filter_)
                 if counter%8 == 0:
-                    counter = 0
+                  
                     
                     window_delay = buffered_window[index:windowsize + index]
 
