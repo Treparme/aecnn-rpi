@@ -156,8 +156,8 @@ try:
     qout1.put_nowait(data) # the output queue needs to be pre-fille
     
     buffersize = blocksize
-    multiplicator = 2
-    windowsize = 2 * buffersize 
+    multiplicator = 4
+    windowsize = multiplicator * buffersize 
     
     buffered_window = np.zeros(delay + windowsize + buffersize)
     filter_ = np.zeros(windowsize)
