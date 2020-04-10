@@ -172,7 +172,7 @@ try:
 
         o1.connect(playback[0])
         o2.connect(playback[1])
-        delay = 0
+        
         deler = multiplicator*4
         while(1):
             noise_input=qin1.get()
