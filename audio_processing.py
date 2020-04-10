@@ -177,20 +177,23 @@ try:
         while(1):
             noise_input=qin1.get()
             error_input=qin.get()
+            counter = 0
             
             buffered_window[-buffersize: ] = noise_input
             
             
             for index in range(buffersize):
+                counter += 1
                 window = buffered_window[delay+index: delay+windowsize + index]
                 
                 output[index] = -np.dot(window, filter_)
-                window_delay = buffered_window[index:windowsize + index]
-                
-                error = error_input[index]
-                
-                #window_delay_normed = window_delay
-                filter_ +=  error*window
+                if counter%8 == 0:
+                    window_delay = buffered_window[index:windowsize + index]
+
+                    error = error_input[index]
+
+                    window_delay_normed = window_delay
+                    filter_ +=  mu*error*window_delay_normed
                 
                
             buffered_window[:-buffersize] = buffered_window[buffersize:]
