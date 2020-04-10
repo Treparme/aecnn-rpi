@@ -12,7 +12,7 @@ class ANC():
         self.dummy_out = qout1
 
         self.mu = 1/delay #learning rate
-        self.buffersize = self.blocksize
+        self.buffer_size = self.blocksize
         self.multiplicator = 4
         self.windowsize = self.multiplicator * self.buffersize
 
