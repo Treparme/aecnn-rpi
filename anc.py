@@ -24,7 +24,9 @@ class ANC():
 
 
     def __init__(self, qout, qout1, qin, qin1, delay, blocksize):
-        epsilon = 10**(-3)
+        self.epsilon = 10**(-3)
+        self.delay = delay
+        self.blocksize = blocksize
         self.noise = qin
         self.error = qin1
         self.antinoise = qout
@@ -33,7 +35,7 @@ class ANC():
         self.mu = 1/delay #learning rate
         self.buffersize = self.blocksize
         self.multiplicator = 4
-        self.windowsize = self.multiplicator *self.buffersize
+        self.windowsize = self.multiplicator * self.buffersize
 
         self.buffered_window = np.zeros(self.delay + self.windowsize + self.buffer_size)
         self.filter_ = np.zeros(self.windowsize)
