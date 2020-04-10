@@ -173,7 +173,7 @@ try:
         o1.connect(playback[0])
         o2.connect(playback[1])
         
-        deler = multiplicator*8
+        deler = multiplicator*4
         while(1):
             noise_input=qin1.get()
             error_input=qin.get()
@@ -187,7 +187,7 @@ try:
                 window = buffered_window[delay+index: delay+windowsize + index]
                 
                 output[index] = -np.dot(window, filter_)
-                if counter%32 == 0:
+                if counter%deler == 0:
                     window_delay = buffered_window[index:windowsize + index]
 
                     error = error_input[index]
