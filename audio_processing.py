@@ -3,7 +3,7 @@
 """
 Real-time single-channel denoising using AECNN speech enhancement model and jackd audio server
 
-The AECNN model needs to be able to execute within the required processing time (framesize/fs), 
+The AECNN model needs to be able to execute within the required processing time (framesize/fs),
 otherwise xrun errors are produced by the jackd audio server and the output gets filled with random values.
 
 If you are unsure of your model's capabilities, you can run the benchmark script and measure its execution time.
@@ -17,6 +17,8 @@ import jack
 import sys
 import numpy as np
 from argparse import ArgumentParser
+
+from anc import ANC
 
 from threading import Event
 try:
@@ -62,18 +64,18 @@ def process(frames):
     try:
         datain=client.inports[0].get_array()
         datain1=client.inports[1].get_array()
-        
+
         qin.put(datain)
         qin1.put(datain1)
-        
+
         data = qout.get_nowait()
         data1 = qout1.get_nowait()
         client.outports[0].get_array()[:] = data
         client.outports[1].get_array()[:] = data1
-        
+
     except queue.Empty:
         stop_callback('Buffer is empty: increase queuesize?')
-        
+
 def maak_antinoise(input, feedback):
     return 2*input + 2*feedback #dummy resultaat
 
@@ -85,11 +87,11 @@ overlap = args.overlap
 buffersize = args.buffersize
 fs = args.sampling_rate
 
-delay = args.delay  #is new
+delay = args.delay  #is new --> goed idee
 
 blocksize = int((1-overlap) * (1-buffersize) * args.framesize)
 command = './start_jackd.sh %d %d' % (blocksize,fs)
-#command = 'sh start_jackd.sh 1024 16000'          
+#command = 'sh start_jackd.sh 1024 16000'
 #command = 'aplay -l'
 check_call(command.split()) # calls start_jackd script to start jackd server
 
@@ -99,7 +101,7 @@ if args.queuesize < 1:
     queuesize = 1
 else:
     queuesize = args.queuesize
-    
+
 qout = queue.Queue(maxsize=queuesize)
 qout1 = queue.Queue(maxsize=queuesize)
 
@@ -117,10 +119,6 @@ if buffersize != 0 or overlap != 0:
 noisy=np.zeros((1,model_blocksize,1),dtype=precision)
 data=np.zeros((blocksize,),dtype=precision)
 
-
-mu = 1/delay #learning rate
-epsilon = 10**(-3)
-
 try:
     # Initialise jackd client
     client = jack.Client("thru_client")
@@ -134,13 +132,10 @@ try:
     client.inports.register('inp_{0}'.format(1))
     client.outports.register('out_{0}'.format(1))
     client.outports.register('out1_{0}'.format(1))
-    
-    #print(client.get_ports())
-    #print(client.inports)
-    
+
     i1=client.inports[0]
     i2=client.inports[1]
-    
+
     capture = client.get_ports(is_physical=True, is_output=True)
     playback = client.get_ports(is_physical=True, is_input=True, is_audio=True)
 
@@ -154,54 +149,16 @@ try:
     #qin.put_nowait(data)
     qout.put_nowait(data) # the output queue needs to be pre-fille
     qout1.put_nowait(data) # the output queue needs to be pre-fille
-    
-    buffersize = blocksize
-    multiplicator = 4
-    windowsize = multiplicator * buffersize 
-    
-    buffered_window = np.zeros(delay + windowsize + buffersize)
-    filter_ = np.zeros(windowsize)
-    #filter_ = np.random.rand(windowsize) / 10
-    output = np.zeros(buffersize)
-    
-    leeg = np.zeros(buffersize)
-    
+
     with client:
         i1.connect(capture[0])
         i2.connect(capture[1])
 
         o1.connect(playback[0])
         o2.connect(playback[1])
-        
-        deler = multiplicator*4
-        while(1):
-            noise_input=qin1.get()
-            error_input=qin.get()
-            counter = 0
-           
-            buffered_window[-buffersize: ] = noise_input
-            
-            
-            for index in range(buffersize):
-                counter += 1
-                window = buffered_window[delay+index: delay+windowsize + index]
-                
-                output[index] = -np.dot(window, filter_)
-                if counter%deler == 0:
-                  
-                    
-                    window_delay = buffered_window[index:windowsize + index]
 
-                    error = error_input[index]
-                    norm = np.linalg.norm(window_delay)
-                    window_delay_normed = window_delay / (norm+epsilon)
-                    filter_ +=  mu*error*window_delay_normed
-                
-               
-            buffered_window[:-buffersize] = buffered_window[buffersize:]
-
-            qout.put(output) #links
-            qout1.put(leeg) #rechts
+        anc = ANC(qout, qout1, qin, qin1, delay, blocksize)
+        anc.start()
 
 except (queue.Full):
     raise RuntimeError('Queue full')
