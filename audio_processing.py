@@ -164,6 +164,7 @@ except (queue.Full):
     raise RuntimeError('Queue full')
 except KeyboardInterrupt:
     print('\nInterrupted by User door keyboard interrupt')
-command = 'killall jackd'
-check_call(command.split())
-print("ended")
+finally:
+    command = 'killall jackd'
+    check_call(command.split())
+    print("ended")
