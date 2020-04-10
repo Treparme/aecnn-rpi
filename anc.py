@@ -8,6 +8,7 @@ class ANC():
         self.output_buffer = qout
         self.dummy_output_buffer = qout1
 
+        self.update_period = 20
         self.epsilon = 10**(-3)
         self.delay = delay
         self.blocksize = blocksize
@@ -52,9 +53,11 @@ class ANC():
 
 
     def update_filter(self, index):
-        window_delay = self.buffered_window[index: self.windowsize + index]
-        window_delay_normed = window_delay / (np.dot(window_delay, window_delay) + self.epsilon)
-        self.filter_ += self.mu * self.error[index] * window_delay_normed
+        self.counter = (self.counter + 1) % self.update_period
+        if self.counter == 0:
+            window_delay = self.buffered_window[index: self.windowsize + index]
+            window_delay_normed = window_delay / (np.dot(window_delay, window_delay) + self.epsilon)
+            self.filter_ += self.mu * self.error[index] * window_delay_normed
 
         # explosion protection
         if np.sum(abs(self.filter_)) > self.windowsize / 100:
