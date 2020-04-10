@@ -1,26 +1,42 @@
 class ANC():
 
-    def calculate_antinoise(self, noise_input, error_input):
-        output = np.zeros(self.buffer_size)
+    def start(self):
+        while(True):
+            noise = self.noise.get()
+            error = self.error.get()
 
+            output = self.anc_buffered(noise, error)
+
+            self.output.put(output)
+            self.dummy_out.put(self.leeg)
+
+    def anc_buffered(self, noise_input, error_input):
         self.buffered_window[-self.buffer_size: ] = noise_input
-
-        for index in range(self.buffer_size):
-            window = buffered_window[self.delay + index: self.delay + self.windowsize + index]
-
-            output[index] = - np.dot(window, self.filter_)
-
-            error = error_input[index]
-            window_delay = buffered_window[index: self.windowsize + index]
-            window_delay_normed = window_delay / (np.dot(window_delay, window_delay) + self.epsilon)
-            self.filter_ += mu * error * window_delay_normed
-
-            # explosion protection
-            if np.sum(abs(filter_)) > self.windowsize / 100:
-                filter_ = np.zeros(self.windowsize)
-
-        buffered_window[: -self.buffer_size] = buffered_window[self.buffer_size: ]
+        output = self.anc(noise_input, error_input)
+        self.buffered_window[: -self.buffer_size] = self.buffered_window[self.buffer_size: ]
         return output
+
+
+    def anc(self, noise_input, error_input):
+        self.output = np.zeros(self.buffer_size)
+        for index in range(self.buffer_size):
+            self.calculate_antinoise_sample(index)
+            self.update_filter(error_input[index])
+
+
+    def calculate_antinoise_sample(self, index):
+        window = buffered_window[self.delay + index: self.delay + self.windowsize + index]
+        self.output[index] = - np.dot(window, self.filter_)
+
+
+    def update_filter(self, error):
+        window_delay = buffered_window[index: self.windowsize + index]
+        window_delay_normed = window_delay / (np.dot(window_delay, window_delay) + self.epsilon)
+        self.filter_ += mu * error * window_delay_normed
+
+        # explosion protection
+        if np.sum(abs(filter_)) > self.windowsize / 100:
+            filter_ = np.zeros(self.windowsize)
 
 
     def __init__(self, qout, qout1, qin, qin1, delay, blocksize):
@@ -41,14 +57,3 @@ class ANC():
         self.filter_ = np.zeros(self.windowsize)
         # self.filter_ = np.random.rand(windowsize) / 10
         self.leeg = np.zeros(buffersize)
-
-
-    def start(self):
-        while(True):
-            noise = self.noise.get()
-            error = self.error.get()
-
-            output = self.calculate_antinoise(noise, error)
-
-            self.output.put(output)
-            self.dummy_out.put(self.leeg)
