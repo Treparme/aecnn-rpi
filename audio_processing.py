@@ -159,7 +159,7 @@ try:
     multiplicator = 2
     windowsize = multiplicator * buffersize 
     
-    buffered_window = np.zeros(delay + windowsize + buffersize)
+    buffered_window = np.ones(delay + windowsize + buffersize)
     filter_ = np.zeros(windowsize)
     #filter_ = np.random.rand(windowsize) / 10
     output = np.zeros(buffersize)
@@ -187,7 +187,7 @@ try:
                 window = buffered_window[delay+index: delay+windowsize + index]
                 
                 output[index] = -np.dot(window, filter_)
-                if counter%deler == 0:
+                if counter%8 == 0:
                     
                     window_delay = buffered_window[index:windowsize + index]
 
