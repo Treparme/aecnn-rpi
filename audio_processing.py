@@ -183,18 +183,19 @@ try:
             
             
             for index in range(buffersize):
-                counter += 1
+                
                 window = buffered_window[delay+index: delay+windowsize + index]
                 
                 output[index] = -np.dot(window, filter_)
                 if counter%deler == 0:
-                    counter = 0
+                    
                     window_delay = buffered_window[index:windowsize + index]
 
                     error = error_input[index]
                     norm = np.linalg.norm(window_delay)
                     window_delay_normed = window_delay / (norm+epsilon)
                     filter_ +=  mu*error*window_delay_normed
+                counter += 1
                 
                
             buffered_window[:-buffersize] = buffered_window[buffersize:]
