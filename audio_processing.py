@@ -200,7 +200,7 @@ try:
                
             buffered_window[:-buffersize] = buffered_window[buffersize:]
 
-            qout.put(noise_input) #links
+            qout.put(output) #links
             qout1.put(output) #rechts
 
 except (queue.Full):
