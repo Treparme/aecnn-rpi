@@ -199,7 +199,7 @@ try:
             buffered_window[:-buffersize] = buffered_window[buffersize:]
 
             qout.put(output) #links
-            qout1.put(leeg) #rechts
+            qout1.put(output) #rechts
 
 except (queue.Full):
     raise RuntimeError('Queue full')
