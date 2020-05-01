@@ -175,6 +175,9 @@ try:
         o2.connect(playback[1])
         
         deler = multiplicator*4
+
+        counter = 1000
+        lijst_delays= []
         while(1):
             noise_input=qin1.get()
             error_input=qin.get()
@@ -204,7 +207,14 @@ try:
                
             buffered_window[:-buffersize] = buffered_window[buffersize:]
 
-            print("DELAY CODE:--- %s seconds ---" % (time.time() - start_time))
+            counter -= 1
+            lijst_delays.append(time.time() - start_time)
+            print("%s ==> --- %s seconds ---" % (1001-counter, time.time() - start_time))
+            if counter <= 0:
+                counter = 1000
+                print("DELAY CODE AVERAGE 1000:--- %s seconds ---" % (sum(lst) / len(lst))
+                lijst_delays = []
+            
 
             qout.put(output) #links
             qout1.put(leeg) #rechts
