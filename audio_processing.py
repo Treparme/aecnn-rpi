@@ -173,7 +173,7 @@ try:
         o1.connect(playback[0])
         o2.connect(playback[1])
         
-        deler = multiplicator*2
+        deler = multiplicator*3
         while(1):
             noise_input=qin1.get()
             error_input=qin.get()
