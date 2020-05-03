@@ -118,7 +118,7 @@ noisy=np.zeros((1,model_blocksize,1),dtype=precision)
 data=np.zeros((blocksize,),dtype=precision)
 
 
-mu = 4/delay #learning rate
+mu = 2/delay #learning rate
 epsilon = 10**(-3)
 
 try:
